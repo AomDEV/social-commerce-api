@@ -7,12 +7,15 @@ export class OAuthUsecase {
     private readonly client: ShopeeClient;
     constructor() {
         this.shopId = process.env.SHOPEE_SHOP_ID;
-        this.client = new ShopeeClient({
+        const partnerId = process.env.SHOPEE_PARTNER_ID;
+        const partnerKey = process.env.SHOPEE_PARTNER_KEY;
+        const validEnv = partnerId && partnerKey;
+        this.client = validEnv ? new ShopeeClient({
             is_uat: false,
             shop_id: this.shopId,
-            partner_id: process.env.SHOPEE_PARTNER_ID,
-            partner_key: process.env.SHOPEE_PARTNER_KEY,
-        });
+            partner_id: partnerId,
+            partner_key: partnerKey,
+        }) : null;
     }
 
     buildRedirectUrl() {
