@@ -1,0 +1,22 @@
+import { ProductPlatform } from "product_platform"
+import { OrderProduct } from "order_product"
+
+model Product {
+    id                  BigInt                  @id @default(autoincrement())
+
+    title               String
+    description         String?
+    image_uuid          String?
+    price               Decimal                 @default(0)
+
+    /// @HideField({ match: '@(Product)*Input' })
+    deleted_at          DateTime?
+    /// @HideField({ match: '@(Product)*Input' })
+    created_at          DateTime                @default(now())
+    /// @HideField({ match: '@(Product)*Input' })
+    updated_at          DateTime                @updatedAt
+
+    platform            ProductPlatform[]       @relation("product_product_platform")
+
+    @@map("product")
+}

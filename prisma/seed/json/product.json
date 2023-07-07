@@ -1,0 +1,14 @@
+[
+    {
+        "title": "Product #1",
+        "image_uuid": "https://placehold.co/400",
+        "description": "Test Description #1",
+        "price": 100
+    },
+    {
+        "title": "Product #2",
+        "image_uuid": "https://placehold.co/400",
+        "description": "Test Description #2",
+        "price": 70
+    }
+]

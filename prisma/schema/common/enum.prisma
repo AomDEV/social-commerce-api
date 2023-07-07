@@ -1,0 +1,12 @@
+enum EPlatform {
+    FACEBOOK
+    SHOPEE
+    LAZADA
+}
+
+enum EOrderStatus {
+    PENDING
+    PAID
+    SHIPPING
+    CANCELLED
+}

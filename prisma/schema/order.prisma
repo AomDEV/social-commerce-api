@@ -1,0 +1,26 @@
+import { OrderProduct } from "order_product"
+import { EOrderStatus, EPlatform } from "common/enum"
+
+model Order {
+    id                  BigInt                  @id @default(autoincrement())
+
+    buyer               String?
+    payment_method      String?
+    status              EOrderStatus
+    platform            EPlatform
+
+    total               Decimal                 @db.Money
+    discount            Decimal                 @db.Money
+    net                 Decimal                 @db.Money
+
+    /// @HideField({ match: '@(Order)*Input' })
+    deleted_at          DateTime?
+    /// @HideField({ match: '@(Order)*Input' })
+    created_at          DateTime                @default(now())
+    /// @HideField({ match: '@(Order)*Input' })
+    updated_at          DateTime                @updatedAt
+
+    order_product       OrderProduct[]          @relation("order_order_product")
+
+    @@map("order")
+}

@@ -1,0 +1,32 @@
+[
+    {
+        "product_id": 1,
+        "platform": "LAZADA",
+        "quantity": 100
+    },
+    {
+        "product_id": 1,
+        "platform": "SHOPEE",
+        "quantity": 100
+    },
+    {
+        "product_id": 1,
+        "platform": "FACEBOOK",
+        "quantity": 100
+    },
+    {
+        "product_id": 2,
+        "platform": "LAZADA",
+        "quantity": 100
+    },
+    {
+        "product_id": 2,
+        "platform": "SHOPEE",
+        "quantity": 100
+    },
+    {
+        "product_id": 2,
+        "platform": "FACEBOOK",
+        "quantity": 100
+    }
+]

@@ -1,0 +1,27 @@
+import { EPlatform } from "common/enum"
+import { Product } from "product"
+import { OrderProduct } from "order_product"
+
+model ProductPlatform {
+    id                  BigInt                  @id @default(autoincrement())
+
+    product_id          BigInt
+
+    discount            Decimal                 @default(0)
+    
+    platform            EPlatform
+
+    reference           String?
+
+    quantity            Int
+
+    /// @HideField({ match: '@(ProductPlatform)*Input' })
+    created_at          DateTime                @default(now())
+    /// @HideField({ match: '@(ProductPlatform)*Input' })
+    updated_at          DateTime                @updatedAt
+
+    product             Product                 @relation("product_product_platform", fields: [product_id], references: [id])
+    order_product       OrderProduct[]          @relation("product_platform_order_product")
+
+    @@map("product_platform")
+}
