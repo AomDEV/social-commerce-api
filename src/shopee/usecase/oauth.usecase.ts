@@ -9,7 +9,7 @@ export class OAuthUsecase {
         this.shopId = process.env.SHOPEE_SHOP_ID;
         const partnerId = process.env.SHOPEE_PARTNER_ID;
         const partnerKey = process.env.SHOPEE_PARTNER_KEY;
-        const validEnv = partnerId && partnerKey;
+        const validEnv = partnerId && partnerKey && partnerId.length > 0 && partnerKey.length > 0;
         this.client = validEnv ? new ShopeeClient({
             is_uat: false,
             shop_id: this.shopId,
