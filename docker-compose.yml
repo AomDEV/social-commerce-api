@@ -1,3 +1,4 @@
+version: '3'
 services:
   api:
     container_name: api
@@ -7,3 +8,11 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
+    networks:
+      - caddy
+    labels:
+      caddy: "social-commerce-api.aomdev.com"
+      caddy.reverse_proxy: "{{upstreams 3000}}"
+networks:
+  caddy:
+    external: true
