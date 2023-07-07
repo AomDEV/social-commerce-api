@@ -1,7 +1,5 @@
 services:
   api:
-    depends_on:
-      - db
     container_name: api
     restart: always
     build: .
@@ -9,16 +7,3 @@ services:
       - .env
     ports:
       - "3000:3000"
-  db:
-    image: postgres:14.1-alpine
-    restart: always
-    environment:
-      - POSTGRES_USER=api
-      - POSTGRES_PASSWORD=n9A0oa3YgFXii95G5fmvZoJUGs8x3gWRNH49QTaMSdWFY4bQbR
-    ports:
-      - "5432:5432"
-    volumes: 
-      - db:/var/lib/postgresql/data
-volumes:
-  db:
-    driver: local
