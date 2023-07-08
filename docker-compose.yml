@@ -12,7 +12,6 @@ services:
       - api_data:/usr/src/app
     env_file:
       - stack.env
-      - .env
     labels:
       caddy: "social-commerce.api-dev.aomdev.com"
       caddy.reverse_proxy: "{{upstreams 3000}}"
