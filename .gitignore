@@ -36,6 +36,7 @@ lerna-debug.log*
 
 # misc
 .env
+stack.env
 
 # lock files
 yarn.lock
