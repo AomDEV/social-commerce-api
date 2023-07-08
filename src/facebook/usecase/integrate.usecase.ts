@@ -2,7 +2,7 @@ import { FB } from "@/common/helpers/axios";
 import { ForbiddenException, Injectable } from "@nestjs/common";
 import { InstallDTO } from "../dto/install.dto";
 import { PrismaService } from "@/common/service/prisma.service";
-import { encryptAES } from "@/common/helpers/hash";
+import { decryptAES, encryptAES } from "@/common/helpers/hash";
 
 @Injectable()
 export class IntegrateUsecase {
@@ -41,16 +41,15 @@ export class IntegrateUsecase {
             name: string
         }[] = pagesResponse?.data?.data ?? [];
         // create page info in database
-        const createdPages = await this.prismaService.pageToken.findMany({
-            where: {
-                page_id: {
-                    in: data.map(x => x.id)
-                }
-            },
+        const createdPagesWhere = {
+            page_id: {
+                in: data.map(x => x.id)
+            }
+        };
+        let createdPages = await this.prismaService.pageToken.findMany({
+            where: createdPagesWhere,
             select: {
-                id: true,
-                name: true,
-                page_id: true
+                id: true
             }
         });
         const createdPageIds = createdPages.map(x => x.id.toString());
@@ -64,10 +63,21 @@ export class IntegrateUsecase {
         });
         if(newPages.length !== created.count) throw new ForbiddenException("Cannot create page info");
 
+        const afterCreatedPages = await this.prismaService.pageToken.findMany({
+            where: createdPagesWhere,
+            select: {
+                name: true,
+                page_id: true,
+                access_token: true
+            }
+        });
         return {
             access_token: access_token,
             user_info: userInfoResponse.data,
-            pages: createdPages
+            pages: afterCreatedPages.map(page => ({
+                ...page,
+                access_token: decryptAES(page.access_token, process.env.SECRET_KEY)
+            }))
         };
     }
 
