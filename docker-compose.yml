@@ -9,16 +9,12 @@ services:
     networks:
       - caddy
     volumes:
-      - api_data:/usr/src/app
+      - .:/usr/src/app
     env_file:
       - stack.env
-    expose:
-      - 3000
     labels:
       caddy: "social-commerce-api.aomdev.com"
       caddy.reverse_proxy: "{{upstreams 3000}}"
 networks:
   caddy:
     external: true
-volumes:
-  api_data: {}
