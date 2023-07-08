@@ -21,6 +21,7 @@ export default class CreateOrderPostback implements IFacebookPostback {
         const order = await this.cartUsecase.checkout({
             sessionId: recipientId,
             buyer: recipientId,
+            fb_page_id: event?.recipient?.id ?? null,
         }).catch(e => {
             console.log(e);
             return null;

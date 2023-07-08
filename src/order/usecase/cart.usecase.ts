@@ -153,6 +153,7 @@ export class CartUsecase {
                 total: total,
                 discount: discount,
                 net: net,
+                fb_page_id: body.fb_page_id,
                 order_product: {
                     createMany: {
                         data: sessionProducts.map(product => ({

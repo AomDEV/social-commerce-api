@@ -1,5 +1,5 @@
 import { IFacebookPostback } from "@/common/interfaces/facebook.interface";
-import { Injectable } from "@nestjs/common";
+import { ForbiddenException, Injectable } from "@nestjs/common";
 import { FacebookService } from "../facebook.service";
 import { FacebookWebhookEvent } from "@/common/types/facebook.type";
 import { EActionPayload } from "@/common/types/payload.type";
@@ -18,6 +18,10 @@ export default class OnOrderPaidPostback implements IFacebookPostback {
 
     async handle(recipientId: string, event: FacebookWebhookEvent = {}, metadata?: OrderFullRelation): Promise<any> {
         const cart: CartSession = this.cartUsecase.orderToCart(metadata);
+        if(!this.facebookService.hasAccessToken()) {
+            const accessToken = await this.facebookService.loadAccessToken(metadata.fb_page_id);
+            if(!accessToken) throw new ForbiddenException("Access token not found");
+        };
         const recipient = await this.facebookService.getRecipientProfile(recipientId);
         const payload = getReceiptTemplate(cart, { recipient, order: metadata });
         const messages = await this.facebookService.sendMessage(metadata.buyer, [

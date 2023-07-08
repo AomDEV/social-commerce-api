@@ -5,16 +5,36 @@ import { ForbiddenException, Injectable } from "@nestjs/common";
 import { IFacebookPostback } from "@/common/interfaces/facebook.interface";
 import { POSTBACKS } from "./postback";
 import { ModuleRef } from "@nestjs/core";
+import { PrismaService } from "@/common/service/prisma.service";
+import { decryptAES } from "@/common/helpers/hash";
 
 @Injectable()
 export class FacebookService implements IPlatform {
-    private accessToken: string = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
+    private accessToken: string = "";
     constructor(
-        private readonly moduleRef: ModuleRef
+        private readonly moduleRef: ModuleRef,
+        private readonly prismaService: PrismaService
     ) {}
 
+    hasAccessToken() {
+        return this.accessToken.length > 0;
+    }
     setAccessToken(accessToken: string) {
         this.accessToken = accessToken;
+        return this.accessToken;
+    }
+    async loadAccessToken(pageId: string) {
+        const getPageInfo = await this.prismaService.pageToken.findFirst({
+            where: {
+                page_id: pageId
+            },
+            select: {
+                access_token: true,
+            }
+        });
+        if (!getPageInfo) return null;
+        const accessToken = decryptAES(getPageInfo.access_token, process.env.SECRET_KEY);
+        return this.setAccessToken(accessToken);
     }
 
     private getURL(path: string) {

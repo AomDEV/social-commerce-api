@@ -20,5 +20,5 @@ export type OrderFullRelation = Order & {
                 product: Product
             }
         }
-    )[]
+    )[];
 };

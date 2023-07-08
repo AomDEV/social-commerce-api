@@ -97,8 +97,19 @@ export class IntegrateUsecase {
     }
 
     async install(body: InstallDTO) {
-        const access_token = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
-        const params = { access_token };
+        const getPageInfo = await this.prismaService.pageToken.findFirst({
+            where: {
+                page_id: body.page_id
+            },
+            select: {
+                access_token: true,
+                name: true,
+            }
+        });
+        if (!getPageInfo) throw new ForbiddenException("Page not found");
+        const accessToken = decryptAES(getPageInfo.access_token, process.env.SECRET_KEY);
+
+        const params = { access_token: accessToken };
         const queryString = new URLSearchParams(params);
         const profileResponse = await FB().get(`/me`, { params }).catch(e => e.response);
         const pageId = profileResponse.data?.id ?? null;
@@ -119,7 +130,7 @@ export class IntegrateUsecase {
 
         const subscribeParams = {
             subscribed_fields: ['messages', 'messaging_postbacks'].join(","),
-            access_token: access_token,
+            access_token: accessToken,
         };
         const subscribeResponse = await FB({useVersion: false}).post(`/${pageId}/subscribed_apps?${new URLSearchParams(subscribeParams)}`);
         return {

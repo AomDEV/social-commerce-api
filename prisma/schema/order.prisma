@@ -13,6 +13,8 @@ model Order {
     discount            Decimal                 @db.Money
     net                 Decimal                 @db.Money
 
+    fb_page_id          String?
+
     /// @HideField({ match: '@(Order)*Input' })
     deleted_at          DateTime?
     /// @HideField({ match: '@(Order)*Input' })

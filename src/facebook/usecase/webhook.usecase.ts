@@ -4,12 +4,15 @@ import { IFacebookPostback } from "@/common/interfaces/facebook.interface";
 import { ModuleRef } from "@nestjs/core";
 import { FacebookService } from "../facebook.service";
 import { base64ToObject } from "@/common/helpers/json";
+import { PrismaService } from "@/common/service/prisma.service";
+import { decryptAES } from "@/common/helpers/hash";
 
 @Injectable()
 export class WebhookUsecase {
     constructor(
         private readonly moduleRef: ModuleRef,
-        private readonly facebookService: FacebookService
+        private readonly facebookService: FacebookService,
+        private readonly prismaService: PrismaService
     ) {}
     get(
         query: {
@@ -22,13 +25,14 @@ export class WebhookUsecase {
     }
 
     async post(body: any) {
-        this.facebookService.setAccessToken(process.env.FACEBOOK_PAGE_ACCESS_TOKEN);
-
         for (const entry of body.entry) {
             for (const messaging of entry.messaging) {
-                const { postback, message, sender } = messaging;
+                const { postback, message, sender, recipient } = messaging;
                 const { quick_reply } = message ?? {};
                 const { id: recipientId } = sender;
+                const { id: pageId } = recipient;
+                const accessToken = await this.facebookService.loadAccessToken(pageId);
+                if (!accessToken) return { message: `Page ${pageId} not found`, pageId };
                 if (postback || quick_reply?.payload) {
                     const { payload } = postback || quick_reply;
                     const hasMetadata = String(payload).includes("|");
@@ -37,8 +41,8 @@ export class WebhookUsecase {
                     const instance: IFacebookPostback = hasMetadata ? POSTBACKS[payloadHeader] : POSTBACKS[payload];
                     if(!instance) throw new BadRequestException("Invalid payload");
                     const module: IFacebookPostback = this.moduleRef.get(instance as any);
-                    if(hasMetadata) entry.metadata = base64ToObject(payloadExploded.pop());
-                    const reply = await module.handle(recipientId, entry);
+                    if(hasMetadata) messaging.metadata = base64ToObject(payloadExploded.pop());
+                    const reply = await module.handle(recipientId, messaging);
                     if(reply && typeof reply !== "undefined") {
                         if(typeof reply === "object" && Object.keys(reply).length <= 0) continue;
                         await this.facebookService.typingOn(recipientId);

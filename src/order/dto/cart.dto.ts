@@ -30,6 +30,11 @@ export class CheckoutDTO {
     @IsString()
     @IsOptional()
     buyer?: string;
+
+    @ApiProperty({default: null,required: false})
+    @IsString()
+    @IsOptional()
+    fb_page_id?: string;
 }
 
 export class ConfirmDTO {
