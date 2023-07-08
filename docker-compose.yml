@@ -19,4 +19,4 @@ networks:
   caddy:
     external: true
 volumes:
-  api_data: {}
+  api_data:
