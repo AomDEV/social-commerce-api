@@ -1,6 +1,35 @@
 import * as bcrypt from 'bcrypt';
 import CryptoJS from 'crypto-js';
 
+/**
+* Encrypt a derived hd private key with a given pin and return it in Base64 form
+* @param text The text to encrypt
+* @param key The secret key
+**/
+export function encryptAES(text: string, key: string) {
+    return CryptoJS.AES.encrypt(text, key).toString();
+};
+
+/**
+* Decrypt an encrypted message
+* @param encryptedBase64 encrypted data in base64 format
+* @param key The secret key
+* @return The decrypted content
+**/
+export function decryptAES(encryptedBase64: string, key: string) {
+    const decrypted = CryptoJS.AES.decrypt(encryptedBase64, key);
+    if (decrypted) {
+		try {
+			const str = decrypted.toString(CryptoJS.enc.Utf8);
+			if (str.length > 0) return str;
+			return null;
+		} catch (e) {
+			return null;
+		}
+    }
+    return null;
+};
+
 export async function passwordHash(
 	plainText: string,
 	saltOrRounds = 10,

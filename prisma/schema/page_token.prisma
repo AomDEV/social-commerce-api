@@ -1,0 +1,16 @@
+model PageToken {
+    id                  BigInt                  @id @default(autoincrement())
+
+    name                String
+    page_id             String
+    access_token        String
+
+    /// @HideField({ match: '@(PageToken)*Input' })
+    deleted_at          DateTime?
+    /// @HideField({ match: '@(PageToken)*Input' })
+    created_at          DateTime                @default(now())
+    /// @HideField({ match: '@(PageToken)*Input' })
+    updated_at          DateTime                @updatedAt
+
+    @@map("page_token")
+}

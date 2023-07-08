@@ -1,9 +1,15 @@
 import { FB } from "@/common/helpers/axios";
 import { ForbiddenException, Injectable } from "@nestjs/common";
 import { InstallDTO } from "../dto/install.dto";
+import { PrismaService } from "@/common/service/prisma.service";
+import { encryptAES } from "@/common/helpers/hash";
 
 @Injectable()
 export class IntegrateUsecase {
+    constructor (
+        private readonly prismaService: PrismaService
+    ) {}
+
     async oauthCallback(code: string) {
         const basicToken = Buffer.from([process.env.FACEBOOK_APP_ID, process.env.FACEBOOK_APP_SECRET].join(':')).toString('base64');
         const accessTokenResponse = await FB({
@@ -29,10 +35,39 @@ export class IntegrateUsecase {
         }).get(`/${id}/accounts`, {
             params: { access_token }
         }).catch(e => e.response);
+        const data: {
+            access_token: string;
+            id: string;
+            name: string
+        }[] = pagesResponse?.data?.data ?? [];
+        // create page info in database
+        const createdPages = await this.prismaService.pageToken.findMany({
+            where: {
+                page_id: {
+                    in: data.map(x => x.id)
+                }
+            },
+            select: {
+                id: true,
+                name: true,
+                page_id: true
+            }
+        });
+        const createdPageIds = createdPages.map(x => x.id.toString());
+        const newPages = data.filter(x => !createdPageIds.includes(x.id));
+        const created = await this.prismaService.pageToken.createMany({
+            data: newPages.map(x => ({
+                page_id: x.id,
+                name: x.name,
+                access_token: encryptAES(x.access_token, process.env.SECRET_KEY),
+            }))
+        });
+        if(newPages.length !== created.count) throw new ForbiddenException("Cannot create page info");
+
         return {
             access_token: access_token,
             user_info: userInfoResponse.data,
-            pages: pagesResponse.data
+            pages: createdPages
         };
     }
 
