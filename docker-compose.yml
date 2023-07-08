@@ -13,7 +13,7 @@ services:
     env_file:
       - stack.env
     labels:
-      caddy: "social-commerce.api-dev.aomdev.com"
+      caddy: "social-commerce-api.aomdev.com"
       caddy.reverse_proxy: "{{upstreams 3000}}"
 networks:
   caddy:
